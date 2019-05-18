@@ -1,6 +1,5 @@
-#define sensorSol 10
-#define sensorOrtaSol 11
-#define sensorOrtaSag 12
+#define sensorSol 11
+#define sensorOrta 12
 #define sensorSag 13
 
 #define MotorR1 6
@@ -11,87 +10,129 @@
 #define MotorL2 4
 #define MotorLE 3
 
+boolean solSensorDegeri;
+boolean ortaSensorDegeri;
+boolean sagSensorDegeri;
+
 void setup() {
   Serial.begin(9600);
   
-  pinMode(sensorSol, INPUT);
-  pinMode(sensorOrtaSol, INPUT);
-  pinMode(sensorOrtaSag, INPUT);
-  pinMode(sensorSag, INPUT);
+  //pinMode(sensorSol, INPUT);
+  //pinMode(sensorOrta, INPUT);
+  //pinMode(sensorSag, INPUT);
 }
 
 void loop() {
-  boolean sol = digitalRead(sensorSol);
-  boolean ortaSol = digitalRead(sensorOrtaSol);
-  boolean ortaSag = digitalRead(sensorOrtaSag);
-  boolean sag = digitalRead(sensorSag);
+  if(Serial.available() > 0){
+    char data;
+    data = Serial.read();
+    Serial.println(data);
+    switch(data){
+      case '1':
+        ileri();
+        break;
+      case '2':
+        geri();
+        break;
+      case '3':
+        sola();
+        break;
+      case '4':
+        saga();
+        break;
+      default:
+        dur();
+    }
+  }
+ 
+
+  /*
+  solSensorDegeri = digitalRead(sensorSol);
+  ortaSensorDegeri = digitalRead(sensorOrta);
+  sagSensorDegeri = digitalRead(sensorSag);
 
   sensorDegerleriniYazdir();
 
-  if(ortaSol == 1 && ortaSag == 0){
-    sol();
+  if(solSensorDegeri == 1 && sagSensorDegeri == 0){
+    //sola();
   }
-  else if(ortaSol == 0 && ortaSag == 1){
-    sag();
+  else if(solSensorDegeri == 0 && sagSensorDegeri == 1){
+    //saga();
   }
-  else if(ortaSol == 1 && ortaSag == 1 ){
-    ileri();
+  else if(solSensorDegeri == 0 && sagSensorDegeri == 0){
+    //ileri();
   }
-  else if(ortaSol == 0 && ortaSag == 0 ){
-    dur();
+  else if(solSensorDegeri == 1 && sagSensorDegeri == 1 ){
+    //dur();
   }
+  */
 }
 
 void ileri(){
-    digitalWrite(MotorR1, HIGH); // Sağ motorun ileri hareketi aktif
-    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
-    analogWrite(MotorRE, 150); // Sağ motorun hızı 150
+    digitalWrite(MotorR1, LOW); // Sağ motorun geri hareketi
+    digitalWrite(MotorR2, HIGH); // Sağ motorun ileri hareketi
+    analogWrite(MotorRE, 75); // Sağ motorun hızı
   
-    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi aktif
-    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
-    analogWrite(MotorLE, 150); // Sol motorun hızı 150
-    Serial.print("ARABA DÜZ GİDİYOR.   ");
+    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi
+    analogWrite(MotorLE, 75); // Sol motorun hızı
+    Serial.println("ARABA DÜZ GİDİYOR.   ");
 }
 
-void sol(){
-    digitalWrite(MotorR1, HIGH); // Sağ motorun ileri hareketi aktif
-    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
-    analogWrite(MotorRE, 150); // Sağ motorun hızı 150
+void geri(){
+    digitalWrite(MotorR1, HIGH); // Sağ motorun geri hareketi
+    digitalWrite(MotorR2, LOW); // Sağ motorun ileri hareketi
+    analogWrite(MotorRE, 75); // Sağ motorun hızı
   
-    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi pasif
-    digitalWrite(MotorL2, HIGH); // Sol motorun geri hareketi aktif
-    analogWrite(MotorLE, 150); // Sol motorun hızı 150
-    Serial.print("ARABA SOLA DÖNÜYOR.   ");
+    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi
+    digitalWrite(MotorL2, HIGH); // Sol motorun geri hareketi
+    analogWrite(MotorLE, 75); // Sol motorun hızı
+    
+    Serial.println("ARABA GERİ GİDİYOR.   ");
 }
 
-void sag(){
-    digitalWrite(MotorR1, LOW); // Sağ motorun ileri hareketi pasif
-    digitalWrite(MotorR2, HIGH); // Sağ motorun geri hareketi aktif
-    analogWrite(MotorRE, 150); // Sağ motorun hızı 150
+void sola(){
+    digitalWrite(MotorR1, LOW); // Sağ motorun geri hareketi
+    digitalWrite(MotorR2, HIGH); // Sağ motorun ileri hareketi
+    analogWrite(MotorRE, 75); // Sağ motorun hızı
   
-    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi aktif
-    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
-    analogWrite(MotorLE, 150); // Sol motorun hızı 150
-    Serial.print("ARABA SAĞA DÖNÜYOR.   ");
+    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi
+    analogWrite(MotorLE, 0); // Sol motorun hızı
+    
+    Serial.println("ARABA SOLA DÖNÜYOR.   ");
+}
+
+void saga(){
+    digitalWrite(MotorR1, LOW); // Sağ motorun geri hareketi
+    digitalWrite(MotorR2, LOW); // Sağ motorun ileri hareketi
+    analogWrite(MotorRE, 0); // Sağ motorun hızı
+  
+    digitalWrite(MotorL1, HIGH); // Sol motorun ileri hareketi
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi
+    analogWrite(MotorLE, 75); // Sol motorun hızı
+    
+    Serial.println("ARABA SAĞA DÖNÜYOR.   ");
 }
 
 void dur(){
-    digitalWrite(MotorR1, LOW); // Sağ motorun ileri hareketi pasif
-    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi pasif
-    analogWrite(MotorRE, 0); // Sağ motorun hızı 0
+    digitalWrite(MotorR1, LOW); // Sağ motorun ileri hareketi
+    digitalWrite(MotorR2, LOW); // Sağ motorun geri hareketi
+    analogWrite(MotorRE, 0); // Sağ motorun hızı
   
-    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi pasif
-    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi pasif
-    analogWrite(MotorLE, 0); // Sol motorun hızı 0
+    digitalWrite(MotorL1, LOW); // Sol motorun ileri hareketi
+    digitalWrite(MotorL2, LOW); // Sol motorun geri hareketi
+    analogWrite(MotorLE, 0); // Sol motorun hızı
+    
+    Serial.println("ARABA DURDU.   ");
 }
-
+/*
 void sensorDegerleriniYazdir(){
-  Serial.print(sol);
+  Serial.print(solSensorDegeri);
   Serial.print(" - ");
-  Serial.print(ortaSol);
+  Serial.print(ortaSensorDegeri);
   Serial.print(" - ");
-  Serial.print(ortaSag);
-  Serial.print(" - ");
-  Serial.print(sag);
+  Serial.print(sagSensorDegeri);
   Serial.println("");
 }
+*/
