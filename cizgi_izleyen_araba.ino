@@ -1,21 +1,22 @@
-#define sensorSol 12
-#define sensorOrtaSol 11
-#define sensorOrtaSag 10
-#define sensorSag 9
+#define SENSOR_SOL 11
+#define SENSOR_ORTA_SOL 9
+#define SENSOR_ORTA_SAG 10
+#define SENSOR_SAG 12
 
-#define solMotorGeri 6
-#define solMotorHiz 7
-#define solMotorIleri 8
+#define SOL_MOTOR_GERI 6
+#define SOL_MOTOR_HIZ 7
+#define SOL_MOTOR_ILERI 8
 
-#define sagMotorIleri 4
-#define sagMotorGeri 3
-#define sagMotorHiz 5
+#define SAG_MOTOR_ILERI 4
+#define SAG_MOTOR_GERI 3
+#define SAG_MOTOR_HIZ 5
 
-#define motorHizi 60
-#define donusHizi 60
+#define MOTOR_HIZI 45
+#define IC_TEKER_DONUS_HIZI 75
+#define DIS_TEKER_DONUS_HIZI 50
 
-boolean sensorlerAktifMi = false;
-boolean geriSayimYapildiMi = false;
+boolean sensorlerAktifMi;
+boolean geriSayimYapildiMi;
 
 boolean sensorSolDeger;
 boolean sensorSagDeger;
@@ -28,10 +29,10 @@ void setup() {
 
 void loop() {
   if(Serial.available()){
-    char data;
-    data = Serial.read();
-    Serial.println(data);
-    switch(data){
+    char gelenDeger;
+    gelenDeger = Serial.read();
+    Serial.println(gelenDeger);
+    switch(gelenDeger){
       case '1': ileri();        break;
       case '2': saga();         break;
       case '3': geri();         break;
@@ -47,7 +48,8 @@ void loop() {
       case 'd': 
         sensorleriDevreDisiBirak();
         break;
-      default: dur(); break;
+      default: dur(); 
+        break;
     }
   }
 
@@ -59,102 +61,69 @@ void loop() {
 }
 
 void cizgiTakipEt(){
-  sensorOrtaSolDeger = digitalRead(sensorOrtaSol);
-  sensorOrtaSagDeger = digitalRead(sensorOrtaSag);
-  sensorSolDeger = digitalRead(sensorSol);
-  sensorSagDeger = digitalRead(sensorSag);
+  sensorSolDeger = digitalRead(SENSOR_SOL);
+  sensorOrtaSolDeger = digitalRead(SENSOR_ORTA_SOL);
+  sensorOrtaSagDeger = digitalRead(SENSOR_ORTA_SAG);
+  sensorSagDeger = digitalRead(SENSOR_SAG);
 
+  sensorDegerleriniYazdir();
   
-  if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+  if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+    ileri();
+  }
+  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+    saga();
+  }
+  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+    hafifSaga();
+  }
+  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+    saga();
+  }
+  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+    hafifSola();
+  }
+  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
     ileri();
   }
   else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
     ileri();
   }
   else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    saga();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
     saga();
   }
   else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    saga();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    saga();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
     sola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    ileri();
   }
   else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
     ileri();
   }
-  
-
-  /*
-  if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
     ileri();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    ileri();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    sola();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    saga();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    saga();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    saga();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    hafifSola();
   }
   else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    hafifSola();
-  }*/
+    ileri();
+  }
+  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+    sola();
+  }
+  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+    ileri();
+  }
+  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+    sola();
+  }
+  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+    ileri();
+  }
 }
 
 void geriSayimiBaslat(){
+  for(int i=0; i<5; i++){
     //buzzer
-    delay(1000);
-    //buzzer
-    delay(1000);
-    //buzzer
-    delay(1000);
-    //buzzer
-    delay(1000);
-    //buzzer
-    delay(1000);
-    geriSayimYapildiMi = true;
-    ileri();
+  }
+  ileri();
+  geriSayimYapildiMi = true;
 }
 
 void sensorleriAktiflestir(){
@@ -167,96 +136,103 @@ void sensorleriDevreDisiBirak(){
   dur();
 }
 
-
 void ileri(){
-  digitalWrite(solMotorIleri, HIGH);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, HIGH);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, MOTOR_HIZI);
   
-  digitalWrite(sagMotorIleri, HIGH);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, motorHizi);
+  digitalWrite(SAG_MOTOR_ILERI, HIGH);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, MOTOR_HIZI);
 }
 
 void geri(){  
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, HIGH);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, HIGH);
+  analogWrite(SOL_MOTOR_HIZ, MOTOR_HIZI);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, HIGH);
-  analogWrite(sagMotorHiz, motorHizi);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, HIGH);
+  analogWrite(SAG_MOTOR_HIZ, MOTOR_HIZI);
 }
 
 void dur(){
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, 0);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, 0);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, 0);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, 0);
 }
 
 void sola(){
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, HIGH);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, HIGH);
+  analogWrite(SOL_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
   
-  digitalWrite(sagMotorIleri, HIGH);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, donusHizi);
-
+  digitalWrite(SAG_MOTOR_ILERI, HIGH);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, DIS_TEKER_DONUS_HIZI);
 }
 
 void saga(){
-  digitalWrite(solMotorIleri, HIGH);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, HIGH);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, DIS_TEKER_DONUS_HIZI);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, HIGH);
-  analogWrite(sagMotorHiz, donusHizi);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, HIGH);
+  analogWrite(SAG_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
 }
 
 void hafifSola(){
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, 0);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, 0);
   
-  digitalWrite(sagMotorIleri, HIGH);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, motorHizi);
+  digitalWrite(SAG_MOTOR_ILERI, HIGH);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
 }
 
-
 void hafifSaga(){
-  digitalWrite(solMotorIleri, HIGH);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, HIGH);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, 0);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, 0);
 }
 
 void solArkaya(){
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, LOW);
-  analogWrite(solMotorHiz, 0);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, LOW);
+  analogWrite(SOL_MOTOR_HIZ, 0);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, HIGH);
-  analogWrite(sagMotorHiz, motorHizi);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, HIGH);
+  analogWrite(SAG_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
 }
 
-
 void sagArkaya(){
-  digitalWrite(solMotorIleri, LOW);
-  digitalWrite(solMotorGeri, HIGH);
-  analogWrite(solMotorHiz, motorHizi);
+  digitalWrite(SOL_MOTOR_ILERI, LOW);
+  digitalWrite(SOL_MOTOR_GERI, HIGH);
+  analogWrite(SOL_MOTOR_HIZ, IC_TEKER_DONUS_HIZI);
   
-  digitalWrite(sagMotorIleri, LOW);
-  digitalWrite(sagMotorGeri, LOW);
-  analogWrite(sagMotorHiz, 0);
+  digitalWrite(SAG_MOTOR_ILERI, LOW);
+  digitalWrite(SAG_MOTOR_GERI, LOW);
+  analogWrite(SAG_MOTOR_HIZ, 0);
+}
+
+void sensorDegerleriniYazdir(){
+  Serial.print(sensorSolDeger);
+  Serial.print("-");
+  Serial.print(sensorOrtaSolDeger);
+  Serial.print("-");
+  Serial.print(sensorOrtaSagDeger);
+  Serial.print("-");
+  Serial.print(sensorSagDeger);
+  Serial.println("");
 }
