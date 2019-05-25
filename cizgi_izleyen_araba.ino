@@ -1,11 +1,13 @@
+#include <NewPing.h>
+
 #define SENSOR_SOL 11
 #define SENSOR_ORTA_SOL 9
 #define SENSOR_ORTA_SAG 10
 #define SENSOR_SAG 12
 
+#define SOL_MOTOR_ILERI 8
 #define SOL_MOTOR_GERI 6
 #define SOL_MOTOR_HIZ 7
-#define SOL_MOTOR_ILERI 8
 
 #define SAG_MOTOR_ILERI 4
 #define SAG_MOTOR_GERI 3
@@ -15,6 +17,13 @@
 #define IC_TEKER_DONUS_HIZI 75
 #define DIS_TEKER_DONUS_HIZI 50
 
+#define YANKI_PINI 33
+#define TETIKLEME_PINI 31
+#define UZAKLIK_SINIRI 15
+
+#define BUZZER_PINI 35
+#define BUZZER_TON 330
+
 boolean sensorlerAktifMi;
 boolean geriSayimYapildiMi;
 
@@ -23,8 +32,13 @@ boolean sensorSagDeger;
 boolean sensorOrtaSolDeger;
 boolean sensorOrtaSagDeger;
 
+NewPing sonar(TETIKLEME_PINI, YANKI_PINI, UZAKLIK_SINIRI);
+
 void setup() {
   Serial.begin(9600);
+  pinMode(YANKI_PINI, INPUT);
+  pinMode(TETIKLEME_PINI, OUTPUT);
+  pinMode(BUZZER_PINI, OUTPUT);
 }
 
 void loop() {
@@ -48,7 +62,8 @@ void loop() {
       case 'd': 
         sensorleriDevreDisiBirak();
         break;
-      default: dur(); 
+      default: 
+        dur(); 
         break;
     }
   }
@@ -58,6 +73,8 @@ void loop() {
       geriSayimiBaslat();
     cizgiTakipEt(); 
   }
+
+  uzaklikDegeriniYazdir();
 }
 
 void cizgiTakipEt(){
@@ -68,59 +85,67 @@ void cizgiTakipEt(){
 
   sensorDegerleriniYazdir();
   
-  if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    ileri();
+  if(sonar.ping_cm() != 0){
+    dur();
   }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    saga();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    hafifSaga();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    saga();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    hafifSola();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    ileri();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    ileri();
-  }
-  else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    saga();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    sola();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
-    sola();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
-    ileri();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
-    sola();
-  }
-  else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
-    ileri();
+  else {
+    if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+      ileri();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+      saga();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+      hafifSaga();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+      saga();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+      hafifSola();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+      ileri();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+      ileri();
+    }
+    else if(sensorSolDeger == 0 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+      saga();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+      sola();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+      ileri();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+      ileri();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 0 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+      ileri();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 0){
+      sola();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 0 && sensorSagDeger == 1){
+      ileri();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 0){
+      sola();
+    }
+    else if(sensorSolDeger == 1 && sensorOrtaSolDeger == 1 && sensorOrtaSagDeger == 1 && sensorSagDeger == 1){
+      ileri();
+    }
   }
 }
 
 void geriSayimiBaslat(){
   for(int i=0; i<5; i++){
-    //buzzer
+    digitalWrite(BUZZER_PINI, HIGH);
+    delay(500);
+    digitalWrite(BUZZER_PINI, LOW);
+    delay(500);
   }
   ileri();
   geriSayimYapildiMi = true;
@@ -224,6 +249,13 @@ void sagArkaya(){
   digitalWrite(SAG_MOTOR_ILERI, LOW);
   digitalWrite(SAG_MOTOR_GERI, LOW);
   analogWrite(SAG_MOTOR_HIZ, 0);
+}
+
+void uzaklikDegeriniYazdir(){
+  delay(50);
+  Serial.print("Uzaklık: ");
+  Serial.print(sonar.ping_cm());
+  Serial.println("cm");
 }
 
 void sensorDegerleriniYazdir(){
